@@ -1,0 +1,89 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30408.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.Identity.Core", "src\Microsoft.AspNet.Identity.Core\Microsoft.AspNet.Identity.Core.csproj", "{D2F24972-0F56-4C18-BD65-C26A320A0C68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0C1D4BD7-0771-4899-AF55-43D8791660A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.Identity.EntityFramework", "src\Microsoft.AspNet.Identity.EntityFramework\Microsoft.AspNet.Identity.EntityFramework.csproj", "{D7298DAD-AB04-4502-9567-0461D0AD059E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FD5D1AFD-204F-4504-B8F3-74C2E1EEC848}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8883A4C2-A8DF-4F24-ADF7-DAEBFBEFD21B}"
+	ProjectSection(SolutionItems) = preProject
+		License.txt = License.txt
+		unittest.testsettings = unittest.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.Identity.Owin", "src\Microsoft.AspNet.Identity.Owin\Microsoft.AspNet.Identity.Owin.csproj", "{943170EB-F4E7-4A6D-989E-2CF6C681DD89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Test", "test\Identity.Test\Identity.Test.csproj", "{A7082BDD-985B-47B9-915B-7FA4CF541B5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{99DB175F-B1B4-4C9B-9D4A-C21F1ED2FB86}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 5
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs18
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = src\\Microsoft.AspNet.Identity.Core\\Microsoft.AspNet.Identity.Core.csproj
+		SccProjectTopLevelParentUniqueName1 = Microsoft.AspNet.Identity.sln
+		SccProjectName1 = src/Microsoft.AspNet.Identity.Core
+		SccLocalPath1 = src\\Microsoft.AspNet.Identity.Core
+		SccProjectUniqueName2 = src\\Microsoft.AspNet.Identity.EntityFramework\\Microsoft.AspNet.Identity.EntityFramework.csproj
+		SccProjectTopLevelParentUniqueName2 = Microsoft.AspNet.Identity.sln
+		SccProjectName2 = src/Microsoft.AspNet.Identity.EntityFramework
+		SccLocalPath2 = src\\Microsoft.AspNet.Identity.EntityFramework
+		SccProjectUniqueName3 = src\\Microsoft.AspNet.Identity.Owin\\Microsoft.AspNet.Identity.Owin.csproj
+		SccProjectTopLevelParentUniqueName3 = Microsoft.AspNet.Identity.sln
+		SccProjectName3 = src/Microsoft.AspNet.Identity.Owin
+		SccLocalPath3 = src\\Microsoft.AspNet.Identity.Owin
+		SccProjectUniqueName4 = test\\Identity.Test\\Identity.Test.csproj
+		SccProjectTopLevelParentUniqueName4 = Microsoft.AspNet.Identity.sln
+		SccProjectName4 = test/Identity.Test
+		SccLocalPath4 = test\\Identity.Test
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2F24972-0F56-4C18-BD65-C26A320A0C68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2F24972-0F56-4C18-BD65-C26A320A0C68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2F24972-0F56-4C18-BD65-C26A320A0C68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2F24972-0F56-4C18-BD65-C26A320A0C68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7298DAD-AB04-4502-9567-0461D0AD059E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7298DAD-AB04-4502-9567-0461D0AD059E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7298DAD-AB04-4502-9567-0461D0AD059E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7298DAD-AB04-4502-9567-0461D0AD059E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{943170EB-F4E7-4A6D-989E-2CF6C681DD89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{943170EB-F4E7-4A6D-989E-2CF6C681DD89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{943170EB-F4E7-4A6D-989E-2CF6C681DD89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{943170EB-F4E7-4A6D-989E-2CF6C681DD89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7082BDD-985B-47B9-915B-7FA4CF541B5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7082BDD-985B-47B9-915B-7FA4CF541B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7082BDD-985B-47B9-915B-7FA4CF541B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7082BDD-985B-47B9-915B-7FA4CF541B5E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D2F24972-0F56-4C18-BD65-C26A320A0C68} = {0C1D4BD7-0771-4899-AF55-43D8791660A0}
+		{D7298DAD-AB04-4502-9567-0461D0AD059E} = {0C1D4BD7-0771-4899-AF55-43D8791660A0}
+		{943170EB-F4E7-4A6D-989E-2CF6C681DD89} = {0C1D4BD7-0771-4899-AF55-43D8791660A0}
+		{A7082BDD-985B-47B9-915B-7FA4CF541B5E} = {FD5D1AFD-204F-4504-B8F3-74C2E1EEC848}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Microsoft.AspNet.Identity.vsmdi
+	EndGlobalSection
+EndGlobal
