@@ -1,2 +1,1 @@
-ASP.NET Identity is the new membership system for ASP.NET applications. ASP.NET Identity makes it really easy to customize profile and add Login/ LogOut functionality to the application. Please visit http://www.asp.net/identity to learn more on getting started with ASP.NET Identity and how you can add users and protect your websites using Roles.
-Please click the HOME tab for instructions on how to enlist and build the source code.
+This repo contains the source code for ASP.NET Identity 2.1, which used to live at: https://aspnetidentity.codeplex.com/
