@@ -212,12 +212,16 @@ namespace Microsoft.AspNet.Identity.Owin
             return await SignInOrTwoFactor(user, isPersistent).WithCurrentCulture();
         }
 
+        private async Task<bool> IsTwoFactorEnabled(TUser user)
+        {
+            return await UserManager.GetTwoFactorEnabledAsync(user.Id).WithCurrentCulture()
+                && (await UserManager.GetValidTwoFactorProvidersAsync(user.Id).WithCurrentCulture()).Count > 0;
+        }
+
         private async Task<SignInStatus> SignInOrTwoFactor(TUser user, bool isPersistent)
         {
             var id = Convert.ToString(user.Id);
-            if (await UserManager.GetTwoFactorEnabledAsync(user.Id).WithCurrentCulture()
-                && (await UserManager.GetValidTwoFactorProvidersAsync(user.Id).WithCurrentCulture()).Count > 0
-                && !await AuthenticationManager.TwoFactorBrowserRememberedAsync(id).WithCurrentCulture())
+            if (await IsTwoFactorEnabled(user) && !await AuthenticationManager.TwoFactorBrowserRememberedAsync(id).WithCurrentCulture())
             {
                 var identity = new ClaimsIdentity(DefaultAuthenticationTypes.TwoFactorCookie);
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, id));
@@ -253,7 +257,10 @@ namespace Microsoft.AspNet.Identity.Owin
             }
             if (await UserManager.CheckPasswordAsync(user, password).WithCurrentCulture())
             {
-                await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                if (!await IsTwoFactorEnabled(user))
+                {
+                    await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                }
                 return await SignInOrTwoFactor(user, isPersistent).WithCurrentCulture();
             }
             if (shouldLockout)
