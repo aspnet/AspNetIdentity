@@ -22,8 +22,6 @@
             <PackageSource Include="https://nuget.org/api/v2/" />
             <PackageSource Include="https://my-nuget-source/nuget/" />
         -->
-        <PackageSource Include="\\wsr-teamcity\Drops\Katana.Release.Signed\latest-successful\Release" />
-        <PackageSource Include="\\wsr-teamcity\Drops\EF.601Beta1.Signed.English\latest-successful\Signed\Packages" />
         <PackageSource Include="http://myget.org/F/owin" />
         <PackageSource Include="https://nuget.org/api/v2/" />
     </ItemGroup>
