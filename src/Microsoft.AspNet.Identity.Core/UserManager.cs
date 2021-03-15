@@ -1118,7 +1118,7 @@ namespace Microsoft.AspNet.Identity
         }
 
         /// <summary>
-        ///     Find a user by his email
+        ///     Find a user by email
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
