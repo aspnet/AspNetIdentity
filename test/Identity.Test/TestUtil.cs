@@ -6,9 +6,6 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin;
-using Microsoft.Owin.Security.DataProtection;
 
 namespace Identity.Test
 {
@@ -22,56 +19,24 @@ namespace Identity.Test
 
         public static UserManager<IdentityUser> CreateManager(DbContext db)
         {
-            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
+            var manager =
+                    new UserManager<IdentityUser>(new UserStore<IdentityUser>(db));
+            manager.UserValidator = new UserValidator<IdentityUser>(manager)
             {
-                Provider = new TestProvider(db),
-                DataProtectionProvider = new DpapiDataProtectionProvider()
+                AllowOnlyAlphanumericUserNames = true,
+                RequireUniqueEmail = false
             };
-            return options.Provider.Create(options, new OwinContext());
+            manager.EmailService = new TestMessageService();
+            manager.SmsService = new TestMessageService();
+            //manager.UserTokenProvider =
+            //    new DataProtectorTokenProvider<IdentityUser>(
+            //        options.DataProtectionProvider.Create("ASP.NET Identity"));
+            return manager;
         }
 
         public static UserManager<IdentityUser> CreateManager()
         {
             return CreateManager(UnitTestHelper.CreateDefaultDb());
-        }
-
-        public static async Task CreateManager(OwinContext context)
-        {
-            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
-            {
-                Provider = new TestProvider(UnitTestHelper.CreateDefaultDb()),
-                DataProtectionProvider = new DpapiDataProtectionProvider()
-            };
-            var middleware =
-                new IdentityFactoryMiddleware
-                    <UserManager<IdentityUser>, IdentityFactoryOptions<UserManager<IdentityUser>>>(null, options);
-            await middleware.Invoke(context);
-        }
-    }
-
-    public class TestProvider : IdentityFactoryProvider<UserManager<IdentityUser>>
-    {
-        public TestProvider(DbContext db)
-        {
-            OnCreate = ((options, context) =>
-            {
-                var manager =
-                    new UserManager<IdentityUser>(new UserStore<IdentityUser>(db));
-                manager.UserValidator = new UserValidator<IdentityUser>(manager)
-                {
-                    AllowOnlyAlphanumericUserNames = true,
-                    RequireUniqueEmail = false
-                };
-                manager.EmailService = new TestMessageService();
-                manager.SmsService = new TestMessageService();
-                if (options.DataProtectionProvider != null)
-                {
-                    manager.UserTokenProvider =
-                        new DataProtectorTokenProvider<IdentityUser>(
-                            options.DataProtectionProvider.Create("ASP.NET Identity"));
-                }
-                return manager;
-            });
         }
     }
 

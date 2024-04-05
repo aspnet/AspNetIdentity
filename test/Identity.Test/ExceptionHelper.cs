@@ -8,7 +8,7 @@ namespace Identity.Test
 {
     public static class ExceptionHelper
     {
-        public static TException ThrowsWithError<TException>(Assert.ThrowsDelegate act, string error)
+        public static TException ThrowsWithError<TException>(Action act, string error)
             where TException : Exception
         {
             var e = Assert.Throws<TException>(act);
@@ -19,7 +19,7 @@ namespace Identity.Test
             return e;
         }
 
-        public static ArgumentException ThrowsArgumentException(Assert.ThrowsDelegate del, string exceptionMessage,
+        public static ArgumentException ThrowsArgumentException(Action del, string exceptionMessage,
             string paramName)
         {
             var e = Assert.Throws<ArgumentException>(del);
@@ -33,13 +33,13 @@ namespace Identity.Test
             return e;
         }
 
-        public static ArgumentException ThrowsArgumentNullOrEmpty(Assert.ThrowsDelegate del, string paramName)
+        public static ArgumentException ThrowsArgumentNullOrEmpty(Action del, string paramName)
         {
             return ThrowsArgumentException(del, "Value cannot be null or empty.\r\nParameter name: " + paramName,
                 paramName);
         }
 
-        public static ArgumentNullException ThrowsArgumentNull(Assert.ThrowsDelegate del, string paramName)
+        public static ArgumentNullException ThrowsArgumentNull(Action del, string paramName)
         {
             var e = Assert.Throws<ArgumentNullException>(del);
             Assert.Equal(paramName, e.ParamName);

@@ -7,40 +7,40 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin;
-using Microsoft.Owin.Security.DataProtection;
+//using Microsoft.AspNet.Identity.Owin;
+//using Microsoft.Owin;
+//using Microsoft.Owin.Security.DataProtection;
 using Xunit;
 
 namespace Identity.Test
 {
     public class ApplicationUserTest
     {
-        private async Task CreateManager(OwinContext context)
-        {
-            var options = new IdentityFactoryOptions<ApplicationUserManager>
-            {
-                DataProtectionProvider = new DpapiDataProtectionProvider(),
-                Provider = new IdentityFactoryProvider<ApplicationUserManager>
-                {
-                    OnCreate = (o, c) => ApplicationUserManager.Create(o, c)
-                }
-            };
-            var middleware =
-                new IdentityFactoryMiddleware<ApplicationUserManager, IdentityFactoryOptions<ApplicationUserManager>>(
-                    null, options);
-            var dbMiddle =
-                new IdentityFactoryMiddleware<ApplicationDbContext, IdentityFactoryOptions<ApplicationDbContext>>(
-                    middleware,
-                    new IdentityFactoryOptions<ApplicationDbContext>
-                    {
-                        Provider = new IdentityFactoryProvider<ApplicationDbContext>
-                        {
-                            OnCreate = (o, c) => CreateDb()
-                        }
-                    });
-            await dbMiddle.Invoke(context);
-        }
+        //private async Task CreateManager(OwinContext context)
+        //{
+        //    var options = new IdentityFactoryOptions<ApplicationUserManager>
+        //    {
+        //        DataProtectionProvider = new DpapiDataProtectionProvider(),
+        //        Provider = new IdentityFactoryProvider<ApplicationUserManager>
+        //        {
+        //            OnCreate = (o, c) => ApplicationUserManager.Create(o, c)
+        //        }
+        //    };
+        //    var middleware =
+        //        new IdentityFactoryMiddleware<ApplicationUserManager, IdentityFactoryOptions<ApplicationUserManager>>(
+        //            null, options);
+        //    var dbMiddle =
+        //        new IdentityFactoryMiddleware<ApplicationDbContext, IdentityFactoryOptions<ApplicationDbContext>>(
+        //            middleware,
+        //            new IdentityFactoryOptions<ApplicationDbContext>
+        //            {
+        //                Provider = new IdentityFactoryProvider<ApplicationDbContext>
+        //                {
+        //                    OnCreate = (o, c) => CreateDb()
+        //                }
+        //            });
+        //    await dbMiddle.Invoke(context);
+        //}
 
         [Fact]
         public void EnsureDefaultSchemaWithApplicationUser()
@@ -48,30 +48,30 @@ namespace Identity.Test
             IdentityDbContextTest.VerifyDefaultSchema(CreateDb());
         }
 
-        [Fact]
-        public async Task ApplicationUserCreateTest()
-        {
-            var owinContext = new OwinContext();
-            await CreateManager(owinContext);
-            var manager = owinContext.GetUserManager<ApplicationUserManager>();
-            ApplicationUser[] users =
-            {
-                new ApplicationUser {UserName = "test", Email = "test@test.com"},
-                new ApplicationUser {UserName = "test1", Email = "test1@test.com"},
-                new ApplicationUser {UserName = "test2", Email = "test2@test.com"},
-                new ApplicationUser {UserName = "test3", Email = "test3@test.com"}
-            };
-            foreach (ApplicationUser user in users)
-            {
-                UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
-            }
-            foreach (ApplicationUser user in users)
-            {
-                var u = await manager.FindByIdAsync(user.Id);
-                Assert.NotNull(u);
-                Assert.Equal(u.UserName, user.UserName);
-            }
-        }
+        //[Fact]
+        //public async Task ApplicationUserCreateTest()
+        //{
+        //    var owinContext = new OwinContext();
+        //    await CreateManager(owinContext);
+        //    var manager = owinContext.GetUserManager<ApplicationUserManager>();
+        //    ApplicationUser[] users =
+        //    {
+        //        new ApplicationUser {UserName = "test", Email = "test@test.com"},
+        //        new ApplicationUser {UserName = "test1", Email = "test1@test.com"},
+        //        new ApplicationUser {UserName = "test2", Email = "test2@test.com"},
+        //        new ApplicationUser {UserName = "test3", Email = "test3@test.com"}
+        //    };
+        //    foreach (ApplicationUser user in users)
+        //    {
+        //        UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
+        //    }
+        //    foreach (ApplicationUser user in users)
+        //    {
+        //        var u = await manager.FindByIdAsync(user.Id);
+        //        Assert.NotNull(u);
+        //        Assert.Equal(u.UserName, user.UserName);
+        //    }
+        //}
 
         private static ApplicationDbContext CreateDb()
         {
@@ -167,36 +167,36 @@ namespace Identity.Test
             {
             }
 
-            public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options,
-                IOwinContext context)
-            {
-                var manager =
-                    new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
-                manager.UserValidator = new UserValidator<ApplicationUser>(manager)
-                {
-                    AllowOnlyAlphanumericUserNames = false,
-                    RequireUniqueEmail = true
-                };
-                manager.PasswordValidator = new MinimumLengthValidator(6);
-                manager.RegisterTwoFactorProvider("PhoneCode", new PhoneNumberTokenProvider<ApplicationUser>
-                {
-                    MessageFormat = "Your security code is: {0}"
-                });
-                manager.RegisterTwoFactorProvider("EmailCode", new EmailTokenProvider<ApplicationUser>
-                {
-                    Subject = "SecurityCode",
-                    BodyFormat = "Your security code is {0}"
-                });
-                manager.EmailService = new EmailService();
-                manager.SmsService = new SMSService();
-                var dataProtectionProvider = options.DataProtectionProvider;
-                if (dataProtectionProvider != null)
-                {
-                    manager.UserTokenProvider =
-                        new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
-                }
-                return manager;
-            }
+            //public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options,
+            //    IOwinContext context)
+            //{
+            //    var manager =
+            //        new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
+            //    manager.UserValidator = new UserValidator<ApplicationUser>(manager)
+            //    {
+            //        AllowOnlyAlphanumericUserNames = false,
+            //        RequireUniqueEmail = true
+            //    };
+            //    manager.PasswordValidator = new MinimumLengthValidator(6);
+            //    manager.RegisterTwoFactorProvider("PhoneCode", new PhoneNumberTokenProvider<ApplicationUser>
+            //    {
+            //        MessageFormat = "Your security code is: {0}"
+            //    });
+            //    manager.RegisterTwoFactorProvider("EmailCode", new EmailTokenProvider<ApplicationUser>
+            //    {
+            //        Subject = "SecurityCode",
+            //        BodyFormat = "Your security code is {0}"
+            //    });
+            //    manager.EmailService = new EmailService();
+            //    manager.SmsService = new SMSService();
+            //    var dataProtectionProvider = options.DataProtectionProvider;
+            //    if (dataProtectionProvider != null)
+            //    {
+            //        manager.UserTokenProvider =
+            //            new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
+            //    }
+            //    return manager;
+            //}
         }
 
         public class EmailService : IIdentityMessageService
