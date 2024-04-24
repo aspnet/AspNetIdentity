@@ -226,18 +226,19 @@ namespace Identity.Test
             Assert.True(await mgr.IsLockedOutAsync(user.Id));
         }
 
-        [Fact]
-        public async Task LockoutEndToNowPlus5ShouldNotBeLockedOut()
-        {
-            var mgr = TestUtil.CreateManager();
-            mgr.UserLockoutEnabledByDefault = true;
-            var user = new IdentityUser("LockoutNowTest") { LockoutEndDateUtc = DateTime.Now.AddMinutes(5) };
-            UnitTestHelper.IsSuccess(mgr.Create(user));
-            Assert.True(mgr.GetLockoutEnabled(user.Id));
-            Assert.True(user.LockoutEnabled);
-            // UTC is 8 hours earlier, so no lockout
-            Assert.False(await mgr.IsLockedOutAsync(user.Id));
-        }
+        // this test assumes it is run in UTC-8 timezone
+        //[Fact]
+        //public async Task LockoutEndToNowPlus5ShouldNotBeLockedOut()
+        //{
+        //    var mgr = TestUtil.CreateManager();
+        //    mgr.UserLockoutEnabledByDefault = true;
+        //    var user = new IdentityUser("LockoutNowTest") { LockoutEndDateUtc = DateTime.Now.AddMinutes(5) };
+        //    UnitTestHelper.IsSuccess(mgr.Create(user));
+        //    Assert.True(mgr.GetLockoutEnabled(user.Id));
+        //    Assert.True(user.LockoutEnabled);
+        //    // UTC is 8 hours earlier, so no lockout
+        //    Assert.False(await mgr.IsLockedOutAsync(user.Id));
+        //}
 
         [Fact]
         public async Task UserLockedOutWithDateTimeNowPlus30()

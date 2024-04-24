@@ -7,6 +7,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
+#if NETFRAMEWORK
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin;
+using Microsoft.Owin.Security.DataProtection;
+#else 
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+#endif 
+
 namespace Identity.Test
 {
     public static class TestUtil
@@ -19,24 +29,75 @@ namespace Identity.Test
 
         public static UserManager<IdentityUser> CreateManager(DbContext db)
         {
-            var manager =
-                    new UserManager<IdentityUser>(new UserStore<IdentityUser>(db));
-            manager.UserValidator = new UserValidator<IdentityUser>(manager)
+            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
             {
-                AllowOnlyAlphanumericUserNames = true,
-                RequireUniqueEmail = false
+                Provider = new TestProvider(db),
+#if NETFRAMEWORK
+                DataProtectionProvider = new DpapiDataProtectionProvider()
+#else
+                DataProtectionProvider = new EphemeralDataProtectionProvider()
+#endif
             };
-            manager.EmailService = new TestMessageService();
-            manager.SmsService = new TestMessageService();
-            //manager.UserTokenProvider =
-            //    new DataProtectorTokenProvider<IdentityUser>(
-            //        options.DataProtectionProvider.Create("ASP.NET Identity"));
-            return manager;
+            return options.Provider.Create(options, GlobalHelpers.CreateContext());
         }
 
         public static UserManager<IdentityUser> CreateManager()
         {
             return CreateManager(UnitTestHelper.CreateDefaultDb());
+        }
+
+#if NETFRAMEWORK
+        public static async Task CreateManager(OwinContext context)
+        {
+            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
+            {
+                Provider = new TestProvider(UnitTestHelper.CreateDefaultDb()),
+                DataProtectionProvider = new DpapiDataProtectionProvider()
+            };
+            var middleware =
+                new IdentityFactoryMiddleware
+                    <UserManager<IdentityUser>, IdentityFactoryOptions<UserManager<IdentityUser>>>(null, options);
+            await middleware.Invoke(context);
+        }
+#else
+        public static async Task CreateManager(HttpContext context)
+        {
+            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
+            {
+                Provider = new TestProvider(UnitTestHelper.CreateDefaultDb()),
+                DataProtectionProvider = new EphemeralDataProtectionProvider()
+            };
+            var middleware =
+                new IdentityFactoryMiddleware
+                    <UserManager<IdentityUser>, IdentityFactoryOptions<UserManager<IdentityUser>>>(options);
+            await middleware.InvokeAsync(context, null);
+        }
+#endif 
+    }
+
+    public class TestProvider : IdentityFactoryProvider<UserManager<IdentityUser>>
+    {
+        public TestProvider(DbContext db)
+        {
+            OnCreate = ((options, context) =>
+            {
+                var manager =
+                    new UserManager<IdentityUser>(new UserStore<IdentityUser>(db));
+                manager.UserValidator = new UserValidator<IdentityUser>(manager)
+                {
+                    AllowOnlyAlphanumericUserNames = true,
+                    RequireUniqueEmail = false
+                };
+                manager.EmailService = new TestMessageService();
+                manager.SmsService = new TestMessageService();
+                if (options.DataProtectionProvider != null)
+                {
+                    manager.UserTokenProvider =
+                        new DataProtectorTokenProvider<IdentityUser>(
+                            options.DataProtectionProvider.Create("ASP.NET Identity"));
+                }
+                return manager;
+            });
         }
     }
 

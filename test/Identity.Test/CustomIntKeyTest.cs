@@ -6,9 +6,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-//using Microsoft.AspNet.Identity.Owin;
-//using Microsoft.Owin;
-//using Microsoft.Owin.Security.DataProtection;
+
+#if NETFRAMEWORK
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin;
+using Microsoft.Owin.Security.DataProtection;
+#else
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
+#endif
+
 using Xunit;
 
 namespace Identity.Test
@@ -89,30 +96,41 @@ namespace Identity.Test
             }
         }
 
-        //[Fact]
-        //public async Task IntKeyConfirmEmailTest()
-        //{
-        //    var manager = CreateManager();
-        //    var user = new CustomUser("testEmailConfirm");
-        //    Assert.False(user.EmailConfirmed);
-        //    UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
-        //    var token = await manager.GenerateEmailConfirmationTokenAsync(user.Id);
-        //    Assert.NotNull(token);
-        //    UnitTestHelper.IsSuccess(await manager.ConfirmEmailAsync(user.Id, token));
-        //    Assert.True(await manager.IsEmailConfirmedAsync(user.Id));
-        //    UnitTestHelper.IsSuccess(await manager.SetEmailAsync(user.Id, null));
-        //    Assert.False(await manager.IsEmailConfirmedAsync(user.Id));
-        //}
-
-        //private UserManager<CustomUser, int> CreateManager()
-        //{
-        //    var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
-        //    {
-        //        Provider = new TestProvider(),
-        //        DataProtectionProvider = new DpapiDataProtectionProvider()
-        //    };
-        //    return options.Provider.Create(options, new OwinContext());
-        //}
+        [Fact]
+        public async Task IntKeyConfirmEmailTest()
+        {
+            var manager = CreateManager();
+            var user = new CustomUser("testEmailConfirm");
+            Assert.False(user.EmailConfirmed);
+            UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
+            var token = await manager.GenerateEmailConfirmationTokenAsync(user.Id);
+            Assert.NotNull(token);
+            UnitTestHelper.IsSuccess(await manager.ConfirmEmailAsync(user.Id, token));
+            Assert.True(await manager.IsEmailConfirmedAsync(user.Id));
+            UnitTestHelper.IsSuccess(await manager.SetEmailAsync(user.Id, null));
+            Assert.False(await manager.IsEmailConfirmedAsync(user.Id));
+        }
+#if NETFRAMEWORK
+        private UserManager<CustomUser, int> CreateManager()
+        {
+            var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
+            {
+                Provider = new TestProvider(),
+                DataProtectionProvider = new DpapiDataProtectionProvider()
+            };
+            return options.Provider.Create(options, new OwinContext());
+        }
+#else
+        private UserManager<CustomUser, int> CreateManager()
+        {
+            var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
+            {
+                Provider = new TestProvider(),
+                DataProtectionProvider = new EphemeralDataProtectionProvider()
+            };
+            return options.Provider.Create(options, GlobalHelpers.CreateContext());
+        }
+#endif
 
         public class CustomRole : IdentityRole<int, CustomUserRole>
         {
@@ -172,30 +190,30 @@ namespace Identity.Test
             }
         }
 
-        //private class TestProvider : IdentityFactoryProvider<UserManager<CustomUser, int>>
-        //{
-        //    public TestProvider()
-        //    {
-        //        OnCreate = ((options, context) =>
-        //        {
-        //            Database.SetInitializer(new DropCreateDatabaseAlways<CustomUserContext>());
-        //            var db = new CustomUserContext();
-        //            db.Database.Initialize(true);
-        //            var manager = new UserManager<CustomUser, int>(new CustomUserStore(db));
-        //            manager.UserValidator = new UserValidator<CustomUser, int>(manager)
-        //            {
-        //                AllowOnlyAlphanumericUserNames = true,
-        //                RequireUniqueEmail = false
-        //            };
-        //            if (options.DataProtectionProvider != null)
-        //            {
-        //                manager.UserTokenProvider =
-        //                    new DataProtectorTokenProvider<CustomUser, int>(
-        //                        options.DataProtectionProvider.Create("ASP.NET Identity"));
-        //            }
-        //            return manager;
-        //        });
-        //    }
-        //}
+        private class TestProvider : IdentityFactoryProvider<UserManager<CustomUser, int>>
+        {
+            public TestProvider()
+            {
+                OnCreate = ((options, context) =>
+                {
+                    Database.SetInitializer(new DropCreateDatabaseAlways<CustomUserContext>());
+                    var db = new CustomUserContext();
+                    db.Database.Initialize(true);
+                    var manager = new UserManager<CustomUser, int>(new CustomUserStore(db));
+                    manager.UserValidator = new UserValidator<CustomUser, int>(manager)
+                    {
+                        AllowOnlyAlphanumericUserNames = true,
+                        RequireUniqueEmail = false
+                    };
+                    if (options.DataProtectionProvider != null)
+                    {
+                        manager.UserTokenProvider =
+                            new DataProtectorTokenProvider<CustomUser, int>(
+                                options.DataProtectionProvider.Create("ASP.NET Identity"));
+                    }
+                    return manager;
+                });
+            }
+        }
     }
 }

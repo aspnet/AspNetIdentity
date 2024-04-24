@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFrameworks>net6.0;net462</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -20,6 +18,12 @@
     <ProjectReference Include="..\..\src\Microsoft.AspNet.Identity.Core\Microsoft.AspNet.Identity.Core.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.AspNet.Identity.EntityFramework\Microsoft.AspNet.Identity.EntityFramework.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework) == 'net462'">
+    <ProjectReference Include="..\..\src\Microsoft.AspNet.Identity.Owin\Microsoft.AspNet.Identity.Owin.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework) != 'net462'">
+    <ProjectReference Include="..\..\src\Microsoft.AspNet.Identity.AspNetCore\Microsoft.AspNet.Identity.AspNetCore.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
@@ -29,5 +33,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

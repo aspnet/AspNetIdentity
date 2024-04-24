@@ -35,8 +35,13 @@ namespace Identity.Test
 
         public static ArgumentException ThrowsArgumentNullOrEmpty(Action del, string paramName)
         {
+#if NETFRAMEWORK
             return ThrowsArgumentException(del, "Value cannot be null or empty.\r\nParameter name: " + paramName,
                 paramName);
+#else
+            return ThrowsArgumentException(del, "Value cannot be null or empty. (Parameter '" + paramName + "')",
+                paramName);
+#endif
         }
 
         public static ArgumentNullException ThrowsArgumentNull(Action del, string paramName)
