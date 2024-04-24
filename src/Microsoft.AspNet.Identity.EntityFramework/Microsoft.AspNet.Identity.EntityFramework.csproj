@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net45</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
-  <PropertyGroup>
     <AssemblyTitle>Microsoft.AspNet.Identity.EntityFramework</AssemblyTitle>
     <Company>Microsoft</Company>
     <Product>Microsoft.AspNet.Identity.EntityFramework</Product>
     <Copyright>Copyright © Microsoft 2013</Copyright>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="IdentityResources.Designer.cs">
