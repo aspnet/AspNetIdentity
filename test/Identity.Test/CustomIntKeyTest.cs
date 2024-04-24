@@ -110,27 +110,16 @@ namespace Identity.Test
             UnitTestHelper.IsSuccess(await manager.SetEmailAsync(user.Id, null));
             Assert.False(await manager.IsEmailConfirmedAsync(user.Id));
         }
-#if NETFRAMEWORK
+
         private UserManager<CustomUser, int> CreateManager()
         {
             var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
             {
                 Provider = new TestProvider(),
-                DataProtectionProvider = new DpapiDataProtectionProvider()
-            };
-            return options.Provider.Create(options, new OwinContext());
-        }
-#else
-        private UserManager<CustomUser, int> CreateManager()
-        {
-            var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
-            {
-                Provider = new TestProvider(),
-                DataProtectionProvider = new EphemeralDataProtectionProvider()
+                DataProtectionProvider = GlobalHelpers.CreateDataProtectionProvider()
             };
             return options.Provider.Create(options, GlobalHelpers.CreateContext());
         }
-#endif
 
         public class CustomRole : IdentityRole<int, CustomUserRole>
         {

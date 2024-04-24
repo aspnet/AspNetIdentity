@@ -32,11 +32,7 @@ namespace Identity.Test
             var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
             {
                 Provider = new TestProvider(db),
-#if NETFRAMEWORK
-                DataProtectionProvider = new DpapiDataProtectionProvider()
-#else
-                DataProtectionProvider = new EphemeralDataProtectionProvider()
-#endif
+                DataProtectionProvider = GlobalHelpers.CreateDataProtectionProvider()
             };
             return options.Provider.Create(options, GlobalHelpers.CreateContext());
         }

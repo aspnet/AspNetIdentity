@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.DataProtection;
 #else
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.AspNetCore;
@@ -50,6 +51,11 @@ namespace Identity.Test
         {
             return context.Identity;
         }
+
+        public static IDataProtectionProvider CreateDataProtectionProvider()
+        {
+            return new DpapiDataProtectionProvider();
+        }
 #else
         public static DefaultHttpContext CreateContext()
         {
@@ -93,6 +99,11 @@ namespace Identity.Test
         public static IDataProtector Create(this IDataProtectionProvider provider, string purpose, params string[] subPurpose)
         {
             return provider.CreateProtector(purpose, subPurpose);
+        }
+
+        public static IDataProtectionProvider CreateDataProtectionProvider()
+        {
+            return new EphemeralDataProtectionProvider();
         }
 #endif
     }

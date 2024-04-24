@@ -631,15 +631,15 @@ namespace Identity.Test
             Assert.Equal(0, db.Set<IdentityUserRole>().Count());
         }
 
-        //[Fact]
-        //public async Task UnknownUserThrowsTest() {
-        //    var manager = new UserManager<IdentityUser>(new UserStore<IdentityUser>(UnitTestHelper.CreateDefaultDb()));
-        //    var r = new IdentityRole("r1");
-        //    UnitTestHelper.IsSuccess(await manager.Roles.CreateAsync(r));
-        //    ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.RemoveUserFromRoleAsync("whatever", r.Name)));
-        //    ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.AddUserToRoleAsync("whatever", r.Name)));
-        //    ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.GetRolesForUserAsync("whatever")));
-        //}
+//        [Fact]
+//        public async Task UnknownUserThrowsTest() {
+//            var manager = new UserManager<IdentityUser>(new UserStore<IdentityUser>(UnitTestHelper.CreateDefaultDb()));
+//            var r = new IdentityRole("r1");
+//            UnitTestHelper.IsSuccess(await manager.Roles.CreateAsync(r));
+//            ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.RemoveUserFromRoleAsync("whatever", r.Name)));
+//            ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.AddUserToRoleAsync("whatever", r.Name)));
+//            ExceptionHelper.ExpectException<InvalidOperationException>(() => AsyncHelper.RunSync(() => manager.Roles.GetRolesForUserAsync("whatever")));
+//        }
 
         [Fact]
         public async Task UnknownRoleThrowsTest()

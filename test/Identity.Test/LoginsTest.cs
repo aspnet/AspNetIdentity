@@ -50,8 +50,7 @@ namespace Identity.Test
 
 
         //[Fact]
-        //public async Task RemoveUnknownLoginFailsTest()
-        //{
+        //public async Task RemoveUnknownLoginFailsTest() {
         //    var store = new UserManager<IdentityUser>(new UserStore<IdentityUser>(UnitTestHelper.CreateDefaultDb()));
         //    UnitTestHelper.IsFailure(await store.Users.RemoveLoginAsync("bogus", "whatever", "ignored"));
         //}

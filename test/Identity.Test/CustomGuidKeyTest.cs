@@ -149,13 +149,8 @@ namespace Identity.Test
             var user = new GuidUser { UserName = "test" };
             UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
             var id = await SignIn(manager, user);
-#if NETFRAMEWORK
-            var ticket = new AuthenticationTicket(id, new AuthenticationProperties { IssuedUtc = DateTimeOffset.UtcNow });
-            var context = new CookieValidateIdentityContext(owinContext, ticket, new CookieAuthenticationOptions());
-#else
-            var ticket = new AuthenticationTicket(new ClaimsPrincipal(id), new AuthenticationProperties { IssuedUtc = DateTimeOffset.UtcNow }, id.AuthenticationType);
-            var context = new CookieValidatePrincipalContext(owinContext, new AuthenticationScheme(id.AuthenticationType, null, typeof(CookieAuthenticationHandler)), new CookieAuthenticationOptions(), ticket);
-#endif
+            var ticket = GlobalHelpers.CreateAuthenticationTicket(id, new AuthenticationProperties { IssuedUtc = DateTimeOffset.UtcNow });
+            var context = GlobalHelpers.CreateCookieValidateIdentityContext(owinContext, ticket, new CookieAuthenticationOptions());
             await
                 SecurityStampValidator.OnValidateIdentity<UserManager<GuidUser, Guid>, GuidUser, Guid>(TimeSpan.Zero,
                     SignIn, claimId => new Guid(claimId.GetUserId())).Invoke(context);
