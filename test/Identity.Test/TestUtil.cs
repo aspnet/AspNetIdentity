@@ -6,9 +6,16 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+
+#if NETFRAMEWORK
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
+#else 
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+#endif 
 
 namespace Identity.Test
 {
@@ -25,9 +32,9 @@ namespace Identity.Test
             var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
             {
                 Provider = new TestProvider(db),
-                DataProtectionProvider = new DpapiDataProtectionProvider()
+                DataProtectionProvider = GlobalHelpers.CreateDataProtectionProvider()
             };
-            return options.Provider.Create(options, new OwinContext());
+            return options.Provider.Create(options, GlobalHelpers.CreateContext());
         }
 
         public static UserManager<IdentityUser> CreateManager()
@@ -35,6 +42,7 @@ namespace Identity.Test
             return CreateManager(UnitTestHelper.CreateDefaultDb());
         }
 
+#if NETFRAMEWORK
         public static async Task CreateManager(OwinContext context)
         {
             var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
@@ -47,6 +55,20 @@ namespace Identity.Test
                     <UserManager<IdentityUser>, IdentityFactoryOptions<UserManager<IdentityUser>>>(null, options);
             await middleware.Invoke(context);
         }
+#else
+        public static async Task CreateManager(HttpContext context)
+        {
+            var options = new IdentityFactoryOptions<UserManager<IdentityUser>>
+            {
+                Provider = new TestProvider(UnitTestHelper.CreateDefaultDb()),
+                DataProtectionProvider = new EphemeralDataProtectionProvider()
+            };
+            var middleware =
+                new IdentityFactoryMiddleware
+                    <UserManager<IdentityUser>, IdentityFactoryOptions<UserManager<IdentityUser>>>(options);
+            await middleware.InvokeAsync(context, null);
+        }
+#endif 
     }
 
     public class TestProvider : IdentityFactoryProvider<UserManager<IdentityUser>>

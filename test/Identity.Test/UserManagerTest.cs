@@ -10,8 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+
+#if NETFRAMEWORK
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security.DataProtection;
+#else 
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
+#endif 
+
 using Xunit;
 using Moq;
 
@@ -1014,7 +1021,7 @@ namespace Identity.Test
         public async Task ResetPasswordWithExpiredTokenFailsTest()
         {
             var manager = TestUtil.CreateManager();
-            var provider = new DpapiDataProtectionProvider();
+            var provider = GlobalHelpers.CreateDataProtectionProvider();
             //manager.PasswordResetTokens = new DataProtectorTokenProvider<IdentityUser>(provider.Create("ResetPassword")) { TokenLifespan = TimeSpan.FromTicks(0) };
             manager.UserTokenProvider = new DataProtectorTokenProvider<IdentityUser>(provider.Create("ResetPassword"))
             {
@@ -1993,9 +2000,9 @@ namespace Identity.Test
             var user = new IdentityUser() { UserName = "foo" };
             var store = new Mock<UserStore<IdentityUser>>();
             store.Setup(x => x.ResetAccessFailedCountAsync(user)).Returns(() =>
-             {
-                 throw new Exception();
-             });
+            {
+                throw new Exception();
+            });
             store.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
                 .Returns(() => Task.FromResult(user));
             store.Setup(x => x.GetAccessFailedCountAsync(It.IsAny<IdentityUser>()))
@@ -2097,7 +2104,7 @@ namespace Identity.Test
                     AllowOnlyAlphanumericUserNames = true,
                     RequireUniqueEmail = false
                 };
-                var dpp = new DpapiDataProtectionProvider();
+                var dpp = GlobalHelpers.CreateDataProtectionProvider();
                 UserTokenProvider = new DataProtectorTokenProvider<IdentityUser>(dpp.Create("ASP.NET Identity"));
             }
 

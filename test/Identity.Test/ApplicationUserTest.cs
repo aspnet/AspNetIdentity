@@ -7,15 +7,24 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+
+#if NETFRAMEWORK
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
+#else 
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.DataProtection;
+#endif
+
 using Xunit;
 
 namespace Identity.Test
 {
     public class ApplicationUserTest
     {
+#if NETFRAMEWORK
         private async Task CreateManager(OwinContext context)
         {
             var options = new IdentityFactoryOptions<ApplicationUserManager>
@@ -41,6 +50,33 @@ namespace Identity.Test
                     });
             await dbMiddle.Invoke(context);
         }
+#else 
+        private async Task CreateManager(HttpContext context)
+        {
+            var options = new IdentityFactoryOptions<ApplicationUserManager>
+            {
+                DataProtectionProvider = new EphemeralDataProtectionProvider(),
+                Provider = new IdentityFactoryProvider<ApplicationUserManager>
+                {
+                    OnCreate = (o, c) => ApplicationUserManager.Create(o, c)
+                }
+            };
+            var middleware =
+                new IdentityFactoryMiddleware<ApplicationUserManager, IdentityFactoryOptions<ApplicationUserManager>>(
+                    options);
+            var dbMiddle =
+                new IdentityFactoryMiddleware<ApplicationDbContext, IdentityFactoryOptions<ApplicationDbContext>>(
+                    new IdentityFactoryOptions<ApplicationDbContext>
+                    {
+                        Provider = new IdentityFactoryProvider<ApplicationDbContext>
+                        {
+                            OnCreate = (o, c) => CreateDb()
+                        }
+                    });
+            await dbMiddle.InvokeAsync(context, c => middleware.InvokeAsync(c, null));
+        }
+#endif
+
 
         [Fact]
         public void EnsureDefaultSchemaWithApplicationUser()
@@ -51,9 +87,9 @@ namespace Identity.Test
         [Fact]
         public async Task ApplicationUserCreateTest()
         {
-            var owinContext = new OwinContext();
-            await CreateManager(owinContext);
-            var manager = owinContext.GetUserManager<ApplicationUserManager>();
+            var context = GlobalHelpers.CreateContext();
+            await CreateManager(context);
+            var manager = context.GetUserManager<ApplicationUserManager>();
             ApplicationUser[] users =
             {
                 new ApplicationUser {UserName = "test", Email = "test@test.com"},
@@ -168,7 +204,12 @@ namespace Identity.Test
             }
 
             public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options,
-                IOwinContext context)
+#if NETFRAMEWORK
+                IOwinContext context
+#else
+                HttpContext context
+#endif
+            )
             {
                 var manager =
                     new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));

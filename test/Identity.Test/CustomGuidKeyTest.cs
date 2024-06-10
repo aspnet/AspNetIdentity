@@ -8,11 +8,21 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+
+#if NETFRAMEWORK
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.DataProtection;
+#else 
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+#endif
+
 using Xunit;
 
 namespace Identity.Test
@@ -85,7 +95,7 @@ namespace Identity.Test
         [Fact]
         public async Task CustomGuidConfirmEmailTest()
         {
-            var owinContext = new OwinContext();
+            var owinContext = GlobalHelpers.CreateContext();
             await CreateManager(owinContext);
             var manager = owinContext.GetUserManager<UserManager<GuidUser, Guid>>();
             var user = new GuidUser("test");
@@ -94,15 +104,15 @@ namespace Identity.Test
             var token = await manager.GenerateEmailConfirmationTokenAsync(user.Id);
             Assert.NotNull(token);
             UnitTestHelper.IsSuccess(await manager.ConfirmEmailAsync(user.Id, token));
-            Assert.True(await manager.IsEmailConfirmedAsync(user.Id));
+            Assert.True((bool)await manager.IsEmailConfirmedAsync(user.Id));
             UnitTestHelper.IsSuccess(await manager.SetEmailAsync(user.Id, null));
-            Assert.False(await manager.IsEmailConfirmedAsync(user.Id));
+            Assert.False((bool)await manager.IsEmailConfirmedAsync(user.Id));
         }
 
         [Fact]
         public async Task CustomGuidEmailTokenFactorWithFormatTest()
         {
-            var owinContext = new OwinContext();
+            var owinContext = GlobalHelpers.CreateContext();
             await CreateManager(owinContext);
             var manager = owinContext.GetUserManager<UserManager<GuidUser, Guid>>();
             var messageService = new TestMessageService();
@@ -126,25 +136,26 @@ namespace Identity.Test
             Assert.NotNull(messageService.Message);
             Assert.Equal("Security Code", messageService.Message.Subject);
             Assert.Equal("Your code is: " + token, messageService.Message.Body);
-            Assert.True(await manager.VerifyTwoFactorTokenAsync(user.Id, factorId, token));
+            Assert.True((bool)await manager.VerifyTwoFactorTokenAsync(user.Id, factorId, token));
         }
 
 
         [Fact]
         public async Task OnValidateIdentityWithGuidTest()
         {
-            var owinContext = new OwinContext();
+            var owinContext = GlobalHelpers.CreateContext();
             await CreateManager(owinContext);
             var manager = owinContext.GetUserManager<UserManager<GuidUser, Guid>>();
-            var user = new GuidUser {UserName = "test"};
+            var user = new GuidUser { UserName = "test" };
             UnitTestHelper.IsSuccess(await manager.CreateAsync(user));
             var id = await SignIn(manager, user);
-            var ticket = new AuthenticationTicket(id, new AuthenticationProperties {IssuedUtc = DateTimeOffset.UtcNow});
-            var context = new CookieValidateIdentityContext(owinContext, ticket, new CookieAuthenticationOptions());
+            var ticket = GlobalHelpers.CreateAuthenticationTicket(id, new AuthenticationProperties { IssuedUtc = DateTimeOffset.UtcNow });
+            var context = GlobalHelpers.CreateCookieValidateIdentityContext(owinContext, ticket, new CookieAuthenticationOptions());
             await
                 SecurityStampValidator.OnValidateIdentity<UserManager<GuidUser, Guid>, GuidUser, Guid>(TimeSpan.Zero,
                     SignIn, claimId => new Guid(claimId.GetUserId())).Invoke(context);
-            Assert.NotNull(context.Identity);
+            var claimsIdentity = context.ExtractClaimsIdentity();
+            Assert.NotNull(claimsIdentity);
             Assert.Equal(user.Id.ToString(), id.GetUserId());
 
             // change stamp and make sure it fails
@@ -152,7 +163,8 @@ namespace Identity.Test
             await
                 SecurityStampValidator.OnValidateIdentity<UserManager<GuidUser, Guid>, GuidUser, Guid>(TimeSpan.Zero,
                     SignIn, claimId => new Guid(claimId.GetUserId())).Invoke(context);
-            Assert.Null(context.Identity);
+            claimsIdentity = context.ExtractClaimsIdentity();
+            Assert.Null(claimsIdentity);
         }
 
         private Task<ClaimsIdentity> SignIn(UserManager<GuidUser, Guid> manager, GuidUser user)
@@ -160,6 +172,7 @@ namespace Identity.Test
             return manager.ClaimsIdentityFactory.CreateAsync(manager, user, DefaultAuthenticationTypes.ApplicationCookie);
         }
 
+#if NETFRAMEWORK
         private async Task CreateManager(OwinContext context)
         {
             var options = new IdentityFactoryOptions<UserManager<GuidUser, Guid>>
@@ -180,6 +193,28 @@ namespace Identity.Test
                 });
             await dbMiddle.Invoke(context);
         }
+#else
+        private async Task CreateManager(HttpContext context)
+        {
+            var options = new IdentityFactoryOptions<UserManager<GuidUser, Guid>>
+            {
+                Provider = new TestProvider(),
+                DataProtectionProvider = new EphemeralDataProtectionProvider()
+            };
+            var middleware =
+                new IdentityFactoryMiddleware
+                    <UserManager<GuidUser, Guid>, IdentityFactoryOptions<UserManager<GuidUser, Guid>>>(options);
+            var dbMiddle = new IdentityFactoryMiddleware<DbContext, IdentityFactoryOptions<DbContext>>(
+                new IdentityFactoryOptions<DbContext>
+                {
+                    Provider = new IdentityFactoryProvider<DbContext>
+                    {
+                        OnCreate = (o, c) => GuidUserContext.Create(),
+                    }
+                });
+            await dbMiddle.InvokeAsync(context, c => middleware.InvokeAsync(c, null));
+        }
+#endif
 
         public class GuidRole : IdentityRole<Guid, GuidUserRole>
         {

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation, Inc. All rights reserved.
 // Licensed under the MIT License, Version 2.0. See License.txt in the project root for license information.
+#if NETFRAMEWORK
 
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -37,11 +38,11 @@ namespace Identity.Test
             var manager = new Mock<IAuthenticationManager>();
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
-                        new AuthenticationProperties(), new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
+                        new AuthenticationProperties())));
             Assert.Null(await manager.Object.GetExternalLoginInfoAsync());
         }
-
+        
         [Fact]
         public async Task GetExternalLoginDoesNotBlowUpWithNullName()
         {
@@ -50,8 +51,8 @@ namespace Identity.Test
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "foo"));
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(identity,
-                        new AuthenticationProperties(), new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(identity,
+                        new AuthenticationProperties())));
             var externalInfo = await manager.Object.GetExternalLoginInfoAsync();
             Assert.NotNull(externalInfo);
         }
@@ -71,8 +72,8 @@ namespace Identity.Test
             var manager = new Mock<IAuthenticationManager>();
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
-                        new AuthenticationProperties(), new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
+                        new AuthenticationProperties())));
             Assert.Null(await manager.Object.GetExternalLoginInfoAsync("xsrfKey", "foo"));
         }
 
@@ -82,8 +83,7 @@ namespace Identity.Test
             var manager = new Mock<IAuthenticationManager>();
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(null, new AuthenticationProperties(),
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(null, new AuthenticationProperties())));
             Assert.Null(await manager.Object.GetExternalLoginInfoAsync("xsrfKey", "foo"));
         }
 
@@ -99,7 +99,7 @@ namespace Identity.Test
             };
             var identity = CreateIdentity(loginInfo);
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
-                .Returns(Task.FromResult(new AuthenticateResult(identity, props, new AuthenticationDescription())));
+                .Returns(Task.FromResult(GlobalHelpers.CreateAuthenticateResult(identity, props)));
             var manager = mockManager.Object;
             var externalInfo = await manager.GetExternalLoginInfoAsync();
             Assert.NotNull(externalInfo);
@@ -121,8 +121,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var externalInfo = manager.GetExternalLoginInfo();
             Assert.NotNull(externalInfo);
@@ -136,7 +135,7 @@ namespace Identity.Test
         {
             var mockManager = new Mock<IAuthenticationManager>();
             var props = new AuthenticationProperties();
-            props.Dictionary["xsrfKey"] = "Hao";
+            props.GetPropertiesDictionary()["xsrfKey"] = "Hao";
             var loginInfo = new ExternalLoginInfo
             {
                 Login = new UserLoginInfo("loginProvider", "key"),
@@ -144,8 +143,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var externalInfo = await manager.GetExternalLoginInfoAsync("xsrfKey", "Hao");
             Assert.NotNull(externalInfo);
@@ -159,7 +157,7 @@ namespace Identity.Test
         {
             var mockManager = new Mock<IAuthenticationManager>();
             var props = new AuthenticationProperties();
-            props.Dictionary["xsrfKey"] = "Hao";
+            props.GetPropertiesDictionary()["xsrfKey"] = "Hao";
             var loginInfo = new ExternalLoginInfo
             {
                 Login = new UserLoginInfo("loginProvider", "key"),
@@ -167,8 +165,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var externalInfo = manager.GetExternalLoginInfo("xsrfKey", "Hao");
             Assert.NotNull(externalInfo);
@@ -182,7 +179,7 @@ namespace Identity.Test
         {
             var mockManager = new Mock<IAuthenticationManager>();
             var props = new AuthenticationProperties();
-            props.Dictionary["xsrfKey"] = "Hao";
+            props.GetPropertiesDictionary()["xsrfKey"] = "Hao";
             var loginInfo = new ExternalLoginInfo
             {
                 Login = new UserLoginInfo("loginProvider", "key"),
@@ -190,8 +187,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var externalInfo = await manager.GetExternalLoginInfoAsync("xsrfKey", "NotHao");
             Assert.Null(externalInfo);
@@ -202,7 +198,7 @@ namespace Identity.Test
         {
             var mockManager = new Mock<IAuthenticationManager>();
             var props = new AuthenticationProperties();
-            props.Dictionary["xsrfKey"] = "Hao";
+            props.GetPropertiesDictionary()["xsrfKey"] = "Hao";
             var loginInfo = new ExternalLoginInfo
             {
                 Login = new UserLoginInfo("loginProvider", "key"),
@@ -210,8 +206,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var externalInfo = manager.GetExternalLoginInfo("xsrfKey", "NotHao");
             Assert.Null(externalInfo);
@@ -223,8 +218,8 @@ namespace Identity.Test
             var manager = new Mock<IAuthenticationManager>();
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
-                        new AuthenticationProperties(), new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateNoNameIdentifierIdentity("name", "authtype"),
+                        new AuthenticationProperties())));
             Assert.Null(await manager.Object.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie));
         }
 
@@ -234,8 +229,8 @@ namespace Identity.Test
             var manager = new Mock<IAuthenticationManager>();
             manager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateNoClaimIdentity("authtype"),
-                        new AuthenticationProperties(), new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateNoClaimIdentity("authtype"),
+                        new AuthenticationProperties())));
             Assert.Null(await manager.Object.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie));
         }
 
@@ -251,8 +246,7 @@ namespace Identity.Test
             };
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.ExternalCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(CreateIdentity(loginInfo), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(CreateIdentity(loginInfo), props)));
             var manager = mockManager.Object;
             var id = await manager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
             Assert.NotNull(id);
@@ -282,7 +276,7 @@ namespace Identity.Test
             var props = new AuthenticationProperties();
             var identity = manager.CreateTwoFactorRememberBrowserIdentity("userId");
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie))
-                .Returns(Task.FromResult(new AuthenticateResult(identity, props, new AuthenticationDescription())));
+                .Returns(Task.FromResult(GlobalHelpers.CreateAuthenticateResult(identity, props)));
             Assert.True(await manager.TwoFactorBrowserRememberedAsync("userId"));
             Assert.False(await manager.TwoFactorBrowserRememberedAsync("userNotId"));
         }
@@ -294,7 +288,7 @@ namespace Identity.Test
             var manager = mockManager.Object;
             var props = new AuthenticationProperties();
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie))
-                .Returns(Task.FromResult(new AuthenticateResult(null, props, new AuthenticationDescription())));
+                .Returns(Task.FromResult(GlobalHelpers.CreateAuthenticateResult(null, props)));
             Assert.False(await manager.TwoFactorBrowserRememberedAsync("userId"));
         }
 
@@ -306,8 +300,7 @@ namespace Identity.Test
             var props = new AuthenticationProperties();
             mockManager.Setup(a => a.AuthenticateAsync(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie))
                 .Returns(
-                    Task.FromResult(new AuthenticateResult(new ClaimsIdentity("whatever"), props,
-                        new AuthenticationDescription())));
+                    Task.FromResult(GlobalHelpers.CreateAuthenticateResult(new ClaimsIdentity("whatever"), props)));
             Assert.False(await manager.TwoFactorBrowserRememberedAsync("userId"));
         }
 
@@ -325,7 +318,7 @@ namespace Identity.Test
         public static ClaimsIdentity CreateNoClaimIdentity(string authenticationType)
         {
             return new ClaimsIdentity(
-                new Claim[] {},
+                new Claim[] { },
                 authenticationType);
         }
 
@@ -341,3 +334,4 @@ namespace Identity.Test
         }
     }
 }
+#endif 

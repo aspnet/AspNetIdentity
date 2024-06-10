@@ -6,9 +6,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+
+#if NETFRAMEWORK
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
+#else
+using Microsoft.AspNet.Identity.AspNetCore;
+using Microsoft.AspNetCore.DataProtection;
+#endif
+
 using Xunit;
 
 namespace Identity.Test
@@ -109,9 +116,9 @@ namespace Identity.Test
             var options = new IdentityFactoryOptions<UserManager<CustomUser, int>>
             {
                 Provider = new TestProvider(),
-                DataProtectionProvider = new DpapiDataProtectionProvider()
+                DataProtectionProvider = GlobalHelpers.CreateDataProtectionProvider()
             };
-            return options.Provider.Create(options, new OwinContext());
+            return options.Provider.Create(options, GlobalHelpers.CreateContext());
         }
 
         public class CustomRole : IdentityRole<int, CustomUserRole>
