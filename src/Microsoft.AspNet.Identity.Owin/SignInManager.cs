@@ -183,12 +183,26 @@ namespace Microsoft.AspNet.Identity.Owin
             if (await UserManager.VerifyTwoFactorTokenAsync(user.Id, provider, code).WithCurrentCulture())
             {
                 // When token is verified correctly, clear the access failed count used for lockout
-                await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                var resetLockoutResult = await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                if (!resetLockoutResult.Succeeded)
+                {
+                    // ResetLockout got an unsuccessful result that could be caused by concurrency failures indicating an
+                    // attacker could be trying to bypass the MaxFailedAccessAttempts limit. Return the same failure we do
+                    // when failing to increment the lockout to avoid giving an attacker extra guesses at the two factor code.
+                    return SignInStatus.Failure;
+                }
+
                 await SignInAsync(user, isPersistent, rememberBrowser).WithCurrentCulture();
                 return SignInStatus.Success;
             }
             // If the token is incorrect, record the failure which also may cause the user to be locked out
-            await UserManager.AccessFailedAsync(user.Id).WithCurrentCulture();
+            var incrementLockoutResult = await UserManager.AccessFailedAsync(user.Id).WithCurrentCulture();
+            if (!incrementLockoutResult.Succeeded)
+            {
+                // Return the same failure we do when resetting the lockout fails after a correct two factor code.
+                // This is currently redundant, but it's here in case the code gets copied elsewhere.
+                return SignInStatus.Failure;
+            }
             return SignInStatus.Failure;
         }
 
@@ -259,14 +273,27 @@ namespace Microsoft.AspNet.Identity.Owin
             {
                 if (!await IsTwoFactorEnabled(user))
                 {
-                    await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                    var resetLockoutResult = await UserManager.ResetAccessFailedCountAsync(user.Id).WithCurrentCulture();
+                    if (!resetLockoutResult.Succeeded)
+                    {
+                        // ResetLockout got an unsuccessful result that could be caused by concurrency failures indicating an
+                        // attacker could be trying to bypass the MaxFailedAccessAttempts limit. Return the same failure we do
+                        // when failing to increment the lockout to avoid giving an attacker extra guesses at the password.
+                        return SignInStatus.Failure;
+                    }
                 }
                 return await SignInOrTwoFactor(user, isPersistent).WithCurrentCulture();
             }
             if (shouldLockout)
             {
                 // If lockout is requested, increment access failed count which might lock out the user
-                await UserManager.AccessFailedAsync(user.Id).WithCurrentCulture();
+                var incrementLockoutResult = await UserManager.AccessFailedAsync(user.Id).WithCurrentCulture();
+                if (!incrementLockoutResult.Succeeded)
+                {
+                    // Return the same failure we do when resetting the lockout fails after a correct password.
+                    return SignInStatus.Failure;
+                }
+
                 if (await UserManager.IsLockedOutAsync(user.Id).WithCurrentCulture())
                 {
                     return SignInStatus.LockedOut;
