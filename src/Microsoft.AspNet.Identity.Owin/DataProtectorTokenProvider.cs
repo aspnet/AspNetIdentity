@@ -126,7 +126,7 @@ namespace Microsoft.AspNet.Identity.Owin
 
                     if (manager.SupportsUserSecurityStamp)
                     {
-                        var expectedStamp = await manager.GetSecurityStampAsync(user.Id).WithCurrentCulture();
+                        var expectedStamp = await manager.GetSecurityStampAsync(user.Id).WithCurrentCulture() ?? string.Empty;
                         return stamp == expectedStamp;
                     }
                     return stamp == "";
