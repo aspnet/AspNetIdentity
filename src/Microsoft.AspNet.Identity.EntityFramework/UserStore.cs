@@ -23,7 +23,7 @@ namespace Microsoft.AspNet.Identity.EntityFramework
         IUserStore<TUser> where TUser : IdentityUser
     {
         /// <summary>
-        ///     Default constuctor which uses a new instance of a default EntityyDbContext
+        ///     Default constuctor which uses a new instance of a default IdentityDbContext
         /// </summary>
         public UserStore()
             : this(new IdentityDbContext())
