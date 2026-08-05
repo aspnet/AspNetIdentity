@@ -101,7 +101,7 @@ namespace Microsoft.AspNet.Identity
             }
             if (manager.SupportsUserRole)
             {
-                IList<string> roles = await manager.GetRolesAsync(user.Id).WithCurrentCulture();
+                IList<string> roles = await manager.GetRolesAsync(user.Id).WithCurrentCulture() ?? [];
                 foreach (string roleName in roles)
                 {
                     id.AddClaim(new Claim(RoleClaimType, roleName, ClaimValueTypes.String));
