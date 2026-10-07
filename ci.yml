@@ -5,6 +5,14 @@ trigger:
     include:
     - main
 
+schedules:
+- cron: "0 9 1,15 * *"
+  displayName: "Twice-monthly official build"
+  branches:
+    include:
+    - main
+  always: true
+
 variables:
 - name: TeamName
   value: AspNetCore
